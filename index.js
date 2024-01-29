@@ -5,7 +5,8 @@
   import fs from 'fs';
   import moment from 'moment';
   import 'moment-timezone';
-  
+  import { StreamParser } from '@json2csv/plainjs';
+
 /*******************************************************************************
   getEmbedConfig()
 *******************************************************************************/
@@ -49,23 +50,43 @@ async function getEmissionsList() {
     
     // loop through each odata file available
     json.value.forEach(row => {        
-      if(row.name.includes('AR4_UNFCCC_ACT')) {
+      if(row.name.includes('AR4_UNFCCC_')) {
         // create array
         records.push(row.url);
       }
     });
           
-    console.log(records);
 
     // join files
-    var rows = [];
+    var data = [];
     for(const diseaseName of records){
-      rows = rows.concat(await getEmissions(diseaseName));
+      data = data.concat(await getEmissions(diseaseName));
     }    
 
-    // write array to file
-    console.log(rows);
+    const csvRows = [];
 
+  const headers = Object.keys(data[0]);
+  csvRows.push(headers.join(','));
+     
+   
+        // Loop to get value of each objects key
+        for (const row of data) {
+          const values = headers.map(header => {
+              const val = row[header]
+              return `"${val}"`;
+          });
+   
+          // To add, separator between each value
+          csvRows.push(values.join(','));
+      }
+   
+      /* To add new line for each objects values
+         and this return statement array csvRows
+         to this function.*/
+      const print = csvRows.join('\n');
+
+      const fname = 'AR4_UNFCCC.csv';
+      fs.writeFileSync('data/'+ fname,print);      
 
   } catch (error) {
     console.log(error);
