@@ -50,7 +50,7 @@ async function getEmissionsList() {
     
     // loop through each odata file available
     json.value.forEach(row => {        
-      if(row.name.includes('AR4_UNFCCC_')) {
+      if(row.name.includes('AR5_ParisInventory_NSW')) {
         // create array
         records.push(row.url);
       }
